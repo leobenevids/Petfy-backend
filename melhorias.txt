@@ -1,0 +1,2 @@
+- melhorar validações com express validator
+- criar variáveis de ambiente (incluindo o secret)
