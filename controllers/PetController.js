@@ -8,7 +8,7 @@ const ObjectId = require("mongoose").Types.ObjectId;
 
 module.exports = {
   create: async (req, res) => {
-    const { name, age, weight, color } = req.body;
+    const { name, species, description, age, weight } = req.body;
 
     const images = req.files;
 
@@ -22,6 +22,11 @@ module.exports = {
       return;
     }
 
+    if (!species) {
+      res.status(422).json({ message: "A espécie é obrigatória." });
+      return;
+    }
+
     if (!age) {
       res.status(422).json({ message: "A idade é obrigatória." });
       return;
@@ -32,10 +37,7 @@ module.exports = {
       return;
     }
 
-    if (!color) {
-      res.status(422).json({ message: "A cor é obrigatória." });
-      return;
-    }
+
 
     if (images.length === 0) {
       res.status(422).json({ message: "A imagem é obrigatória." });
@@ -49,9 +51,10 @@ module.exports = {
     // create a pet
     const pet = new Pet({
       name,
+      species,
+      description,
       age,
       weight,
-      color,
       available,
       images: [],
       user: {
@@ -68,7 +71,7 @@ module.exports = {
 
     try {
       const newPet = await pet.save();
-      res.status(201).json({ message: "Pet cadastrado com sucesso.", newPet });
+      res.status(201).json({ message: "Pet cadastrado com sucesso!", newPet });
     } catch (error) {
       res.status(500).json({ message: error });
     }
@@ -156,7 +159,8 @@ module.exports = {
 
   updatePet: async (req, res) => {
     const id = req.params.id;
-    const { name, age, weight, color, available } = req.body;
+    const { name, species, description, age, weight, available } =
+      req.body;
     const images = req.files;
 
     const updatedData = {};
@@ -189,6 +193,20 @@ module.exports = {
       updatedData.name = name;
     }
 
+    if (!species) {
+      res.status(422).json({ message: "A espécie é obrigatória." });
+      return;
+    } else {
+      updatedData.species = species;
+    }
+
+    if (!description) {
+      res.status(422).json({ message: "A descrição é obrigatória." });
+      return;
+    } else {
+      updatedData.description = description;
+    }
+
     if (!age) {
       res.status(422).json({ message: "A idade é obrigatória." });
       return;
@@ -201,13 +219,6 @@ module.exports = {
       return;
     } else {
       updatedData.weight = weight;
-    }
-
-    if (!color) {
-      res.status(422).json({ message: "A cor é obrigatória." });
-      return;
-    } else {
-      updatedData.color = color;
     }
 
     if (images.length === 0) {
